@@ -11,18 +11,23 @@ use Carbon\Carbon;
 
 class BookingController extends Controller
 {
+    // 1. PUBLIC LANDING PAGE (Displays room products only)
     public function index()
     {
-        $roomTypes = RoomType::all();
-        // Grabs active bookings and pulls user info alongside it
-        $bookings = Booking::with(['roomType', 'user'])->orderBy('created_at', 'desc')->get();
-
-        return view('welcome', compact('roomTypes', 'bookings'));
+        $roomTypes = RoomType::orderBy('base_price', 'desc')->get();
+        return view('welcome', compact('roomTypes'));
     }
 
+    // 2. DEDICATED RESERVATION PAGE (Sorted Descending)
+    public function showReservationForm()
+    {
+        $roomTypes = RoomType::orderBy('base_price', 'desc')->get();
+        return view('reserve', compact('roomTypes'));
+    }
+
+    // 3. BACKGROUND PROCESSING ENGINE
     public function store(Request $request)
     {
-        // 1. Gather Guest Details & Booking Dates
         $guestName = $request->input('guest_name');
         $guestEmail = $request->input('guest_email');
         $guestPhone = $request->input('guest_phone');
@@ -33,7 +38,6 @@ class BookingController extends Controller
 
         return DB::transaction(function () use ($guestName, $guestEmail, $guestPhone, $roomTypeId, $checkIn, $checkOut) {
             
-            // 2. Room Inventory Protection Logic
             $days = DB::table('room_inventories')
                 ->where('room_type_id', $roomTypeId)
                 ->where('inventory_date', '>=', $checkIn->toDateString())
@@ -43,35 +47,32 @@ class BookingController extends Controller
 
             foreach ($days as $day) {
                 if ($day->available_count <= 0) {
-                    return redirect()->back()->with('error', "No rooms available for " . $day->inventory_date);
+                    return redirect()->back()->with('error', "No availability remains for " . $day->inventory_date);
                 }
             }
 
-            // 3. Deduct room inventory count
             DB::table('room_inventories')
                 ->where('room_type_id', $roomTypeId)
                 ->where('inventory_date', '>=', $checkIn->toDateString())
                 ->where('inventory_date', '<', $checkOut->toDateString())
                 ->decrement('available_count');
 
-            // 4. Calculate total price
             $roomType = RoomType::find($roomTypeId);
             $totalPrice = $days->sum(function ($day) use ($roomType) {
                 return $day->price_override ?? $roomType->base_price;
             });
 
-            // 5. Instantly locate or generate a background profile for this guest
             $user = User::firstOrCreate(
                 ['email' => $guestEmail],
                 [
                     'name' => $guestName,
                     'phone' => $guestPhone,
-                    'password' => bcrypt(str_random(16)), // Gives them a secure random password if they ever want to activate their account later
+                    // FIXED: Using the modern namespaced Str class helper
+                    'password' => bcrypt(\Illuminate\Support\Str::random(16)),
                     'role' => 'customer'
                 ]
             );
 
-            // 6. Record the Reservation
             Booking::create([
                 'user_id' => $user->id,
                 'room_type_id' => $roomTypeId,
@@ -81,7 +82,8 @@ class BookingController extends Controller
                 'status' => 'confirmed'
             ]);
 
-            return redirect()->route('home')->with('success', 'Reservation booked successfully!');
+            // Redirects back to home page with success notification
+            return redirect()->route('home')->with('success', 'Your elite sanctuary reservation has been confirmed successfully!');
         });
     }
 }

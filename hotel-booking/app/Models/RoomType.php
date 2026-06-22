@@ -4,9 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class RoomType extends Model
 {
+    use HasFactory;
     // Allows Laravel to insert data into these columns automatically
     protected $fillable = ['name', 'base_price', 'total_inventory'];
 

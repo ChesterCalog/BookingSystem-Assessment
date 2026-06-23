@@ -4,6 +4,10 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Admin\AuditLogController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\ManageAccountsController;
+use App\Http\Controllers\Admin\TransactionReportController;
 use App\Models\RoomType;
 use Illuminate\Support\Facades\Route;
 
@@ -68,6 +72,7 @@ Route::post('/staff/login', [AuthenticatedSessionController::class, 'storeStaff'
     ->middleware('guest')
     ->name('staff.login.store');
 
+
 /*
 |--------------------------------------------------------------------------
 | Protected Customer Workspace
@@ -101,8 +106,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::middleware(['auth', 'role:staff,admin'])->group(function () {
 
     Route::get('/management/portal', function () {
-        return view('dashboard.staff');
+        return redirect()->route('admin.dashboard');
     })->name('staff.portal');
+
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/manage-accounts', [ManageAccountsController::class, 'index'])->name('accounts');
+        Route::patch('/manage-accounts/{user}/role', [ManageAccountsController::class, 'updateRole'])->name('accounts.update-role');
+        Route::patch('/manage-accounts/{user}/status', [ManageAccountsController::class, 'toggleStatus'])->name('accounts.toggle-status');
+        Route::get('/audit-logs', [AuditLogController::class, 'index'])->name('audit-logs');
+        Route::get('/transaction-reports', [TransactionReportController::class, 'index'])->name('transaction-reports');
+    });
 
 });
 

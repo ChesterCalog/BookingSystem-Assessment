@@ -31,13 +31,19 @@ class AuthenticatedSessionController extends Controller
     }
 
     /**
-     * Handle an incoming staff authentication request.
+     * Handle an incoming staff or admin authentication request.
      */
     public function storeStaff(LoginRequest $request): RedirectResponse
     {
-        $this->authenticateForRoles($request, ['staff', 'admin'], 'Only staff accounts can access the staff portal.');
+        $this->authenticateForRoles($request, ['staff', 'admin'], 'Only staff or admin accounts can access the staff portal.');
 
-        return redirect()->intended(route('staff.portal', absolute: false));
+        $request->session()->forget('url.intended');
+
+        if ($request->user()->role === 'admin') {
+            return redirect()->route('admin.dashboard');
+        }
+
+        return redirect()->route('staff.portal');
     }
 
     /**
@@ -50,8 +56,14 @@ class AuthenticatedSessionController extends Controller
 
         $user = $request->user();
 
-        if ($user->role === 'staff' || $user->role === 'admin') {
-            return redirect()->intended(route('staff.portal', absolute: false));
+        if ($user->role === 'admin') {
+            $request->session()->forget('url.intended');
+            return redirect()->route('admin.dashboard');
+        }
+
+        if ($user->role === 'staff') {
+            $request->session()->forget('url.intended');
+            return redirect()->route('staff.portal');
         }
 
         return redirect()->intended(route('member.dashboard', absolute: false));

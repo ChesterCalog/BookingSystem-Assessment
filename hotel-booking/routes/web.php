@@ -22,6 +22,8 @@ Route::get('/', function () {
     return view('welcome', compact('roomTypes'));
 })->name('home');
 
+Route::get('/booking/reserve', [BookingController::class, 'showReservationForm'])->name('booking.create');
+Route::post('/booking/reserve', [BookingController::class, 'store'])->name('booking.store');
 Route::get('/booking/reserve', function () {
     $rooms = [
         [

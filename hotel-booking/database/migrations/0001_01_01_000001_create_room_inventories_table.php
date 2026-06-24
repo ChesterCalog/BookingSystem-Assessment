@@ -15,7 +15,6 @@ return new class extends Migration
         $table->foreignId('room_type_id')->constrained('room_types')->onDelete('cascade');
         $table->date('inventory_date');
         $table->integer('available_count');
-        $table->decimal('price_override', 10, 2)->nullable();
         $table->primary(['room_type_id', 'inventory_date']); 
     });
     }

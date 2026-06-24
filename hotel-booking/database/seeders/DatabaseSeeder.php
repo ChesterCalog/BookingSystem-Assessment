@@ -29,20 +29,28 @@ class DatabaseSeeder extends Seeder
             ['name' => 'John Doe', 'password' => bcrypt('password'), 'role' => 'customer']
         );
 
-        // 2. GENERATE DEFAULT ROOM TYPE
-        $roomType = RoomType::firstOrCreate(
-            ['name' => 'Deluxe Suite'],
-            ['base_price' => 150.00, 'total_inventory' => 5]
-        );
+        // 2. CALL YOUR CUSTOM ROOM TYPE SEEDER
+        // This executes your RoomTypeSeeder.php file!
+        $this->call([
+            RoomTypeSeeder::class,
+        ]);
 
-        foreach ([101, 102, 103, 104, 105] as $roomNumber) {
-            RoomUnit::firstOrCreate(
-                ['room_number' => (string) $roomNumber],
-                [
-                    'room_type_id' => $roomType->id,
-                    'status' => 'available',
-                ]
-            );
+        // Fetch ALL the room types we just seeded to use in our loops below
+        $roomTypes = RoomType::all();
+
+        // Dynamically generate Room Units for each Room Type
+        $roomNumberCounter = 101;
+        foreach ($roomTypes as $type) {
+            // Creates units up to the total_inventory limit of each room type
+            for ($i = 0; $i < $type->total_inventory; $i++) {
+                RoomUnit::firstOrCreate(
+                    ['room_number' => (string) $roomNumberCounter++],
+                    [
+                        'room_type_id' => $type->id,
+                        'status' => 'available',
+                    ]
+                );
+            }
         }
 
         // 3. POPULATE CALENDAR INVENTORY FOR THE NEXT 30 DAYS

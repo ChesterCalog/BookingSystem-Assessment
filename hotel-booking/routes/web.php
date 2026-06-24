@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\ManageAccountsController;
 use App\Http\Controllers\Admin\TransactionReportController;
+use App\Http\Controllers\Staff\StaffDashboardController;
 use App\Models\RoomType;
 use Illuminate\Support\Facades\Route;
 
@@ -25,31 +26,31 @@ Route::get('/', function () {
 Route::get('/booking/reserve', function () {
     $rooms = [
         [
-            'id'          => 1,
-            'name'        => 'Horizon Deluxe Suite',
-            'price'       => 350.00,
-            'size'        => '850 sq. ft.',
-            'image'       => 'https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=800&q=80',
+            'id' => 1,
+            'name' => 'Horizon Deluxe Suite',
+            'price' => 350.00,
+            'size' => '850 sq. ft.',
+            'image' => 'https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=800&q=80',
             'description' => 'Our signature suite featuring panoramic ocean views, a private wrap-around balcony, and soundproof structural architecture.',
-            'amenities'   => ['High-Speed Wi-Fi', 'King Bed', 'Ocean View', 'Mini Bar', 'Smart TV'],
+            'amenities' => ['High-Speed Wi-Fi', 'King Bed', 'Ocean View', 'Mini Bar', 'Smart TV'],
         ],
         [
-            'id'          => 2,
-            'name'        => 'Oceanfront Standard',
-            'price'       => 200.00,
-            'size'        => '450 sq. ft.',
-            'image'       => 'https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=800&q=80',
+            'id' => 2,
+            'name' => 'Oceanfront Standard',
+            'price' => 200.00,
+            'size' => '450 sq. ft.',
+            'image' => 'https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=800&q=80',
             'description' => 'An elegant, minimalist layout prioritizing absolute comfort with direct beach access from the ground floor.',
-            'amenities'   => ['High-Speed Wi-Fi', 'Queen Bed', 'Beach Access', 'Work Desk'],
+            'amenities' => ['High-Speed Wi-Fi', 'Queen Bed', 'Beach Access', 'Work Desk'],
         ],
         [
-            'id'          => 3,
-            'name'        => 'Executive Penthouse',
-            'price'       => 850.00,
-            'size'        => '1,500 sq. ft.',
-            'image'       => 'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80',
+            'id' => 3,
+            'name' => 'Executive Penthouse',
+            'price' => 850.00,
+            'size' => '1,500 sq. ft.',
+            'image' => 'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80',
             'description' => 'The ultimate luxury experience. Features a private plunge pool, dedicated butler service, and a full kitchen.',
-            'amenities'   => ['Gigabit Wi-Fi', 'Private Pool', 'Butler Service', 'Full Kitchen', 'Private Elevator'],
+            'amenities' => ['Gigabit Wi-Fi', 'Private Pool', 'Butler Service', 'Full Kitchen', 'Private Elevator'],
         ],
     ];
 
@@ -105,10 +106,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::middleware(['auth', 'role:staff'])->group(function () {
 
     Route::get('/staff/portal', function () {
-        return redirect()->route('staff.dashboard');
+        return redirect()->route('staff.approvals');
     })->name('staff.portal');
 
     Route::prefix('staff')->name('staff.')->group(function () {
+        Route::get('/dashboard', function () {
+            return redirect()->route('staff.approvals');
+        })->name('dashboard');
+        Route::get('/approvals', [StaffDashboardController::class, 'approvals'])->name('approvals');
+        Route::get('/maintenance', [StaffDashboardController::class, 'maintenance'])->name('maintenance');
+        Route::post('/bookings/{booking}/approve', [StaffDashboardController::class, 'approveBooking'])->name('bookings.approve');
+        Route::post('/bookings/{booking}/reject', [StaffDashboardController::class, 'rejectBooking'])->name('bookings.reject');
     });
 
 });
@@ -125,8 +133,12 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
         Route::patch('/manage-accounts/{user}/status', [ManageAccountsController::class, 'toggleStatus'])->name('accounts.toggle-status');
         Route::get('/audit-logs', [AuditLogController::class, 'index'])->name('audit-logs');
         Route::get('/transaction-reports', [TransactionReportController::class, 'index'])->name('transaction-reports');
+        Route::get('/approvals', [StaffDashboardController::class, 'approvals'])->name('approvals');
+        Route::get('/maintenance', [StaffDashboardController::class, 'maintenance'])->name('maintenance');
+        Route::post('/bookings/{booking}/approve', [StaffDashboardController::class, 'approveBooking'])->name('bookings.approve');
+        Route::post('/bookings/{booking}/reject', [StaffDashboardController::class, 'rejectBooking'])->name('bookings.reject');
     });
 
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

@@ -43,7 +43,7 @@ class AuthenticatedSessionController extends Controller
             return redirect()->route('admin.dashboard');
         }
 
-        return redirect()->route('staff.portal');
+        return redirect()->route('staff.dashboard');
     }
 
     /**
@@ -63,7 +63,7 @@ class AuthenticatedSessionController extends Controller
 
         if ($user->role === 'staff') {
             $request->session()->forget('url.intended');
-            return redirect()->route('staff.portal');
+            return redirect()->route('staff.dashboard');
         }
 
         return redirect()->intended(route('member.dashboard', absolute: false));
@@ -80,7 +80,7 @@ class AuthenticatedSessionController extends Controller
     {
         $request->authenticate();
 
-        if (! in_array($request->user()->role, $roles, true)) {
+        if (!in_array($request->user()->role, $roles, true)) {
             Auth::guard('web')->logout();
 
             throw ValidationException::withMessages([

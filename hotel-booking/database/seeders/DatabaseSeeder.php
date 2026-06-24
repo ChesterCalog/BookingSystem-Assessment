@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 use App\Models\RoomType;
 use App\Models\RoomInventory;
+use App\Models\RoomUnit;
 use Illuminate\Database\Seeder;
 use Carbon\Carbon;
 
@@ -33,6 +34,16 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Deluxe Suite'],
             ['base_price' => 150.00, 'total_inventory' => 5]
         );
+
+        foreach ([101, 102, 103, 104, 105] as $roomNumber) {
+            RoomUnit::firstOrCreate(
+                ['room_number' => (string) $roomNumber],
+                [
+                    'room_type_id' => $roomType->id,
+                    'status' => 'available',
+                ]
+            );
+        }
 
         // 3. POPULATE CALENDAR INVENTORY FOR THE NEXT 30 DAYS
         $startDate = Carbon::today();

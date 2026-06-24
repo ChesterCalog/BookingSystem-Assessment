@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <title>Grand Horizon - @yield('title')</title>
+
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <style>
+        .staff-sidebar {
+            width: 20rem;
+            min-height: 100vh;
+            background: #ede0d6;
+            border-right: 1px solid #e6dacc;
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .staff-sidebar-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+            text-decoration: none;
+        }
+
+        .staff-brand {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 0.75rem;
+            background: #f5f0e9;
+            color: #5f5345;
+            display: grid;
+            place-items: center;
+            font-weight: 700;
+        }
+
+        .staff-brand-text {
+            color: #3f3f3f;
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .staff-sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 0.375rem;
+        }
+
+        .staff-sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.875rem;
+            color: #5f5244;
+            background: transparent;
+            text-decoration: none;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            font-size: 0.95rem;
+        }
+
+        .staff-sidebar-link:hover {
+            background: rgba(255, 255, 255, 0.8);
+            color: #3f3f3f;
+        }
+
+        .staff-sidebar-link.active {
+            background: #ffffff;
+            color: #1f2937;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+        }
+
+        .staff-sidebar-icon {
+            width: 1.5rem;
+            display: inline-flex;
+            justify-content: center;
+        }
+
+        .staff-sidebar-footer {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            border-radius: 1rem;
+            background: rgba(255, 255, 255, 0.92);
+        }
+
+        .staff-sidebar-logout {
+            margin-top: 1rem;
+        }
+
+        .staff-logout-button {
+            width: 100%;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0.85rem 1rem;
+            border-radius: 0.95rem;
+            background: #7c5d45;
+            color: #fff;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+        }
+
+        .staff-logout-button:hover {
+            background: #5f4a38;
+            transform: translateY(-1px);
+        }
+
+        .staff-avatar {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 9999px;
+            background: #d9c6af;
+            color: #4b4034;
+            display: grid;
+            place-items: center;
+            font-weight: 700;
+        }
+
+        .staff-avatar-name {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #3f3f3f;
+        }
+
+        .staff-avatar-role {
+            font-size: 0.8rem;
+            color: #7c6f61;
+        }
+
+        .staff-main {
+            padding: 2rem;
+        }
+
+        .staff-main h1,
+        .staff-main p {
+            margin: 0;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-900">
+    <div class="min-h-screen bg-slate-50 flex">
+        <aside class="staff-sidebar">
+            <div>
+                <a href="{{ route('staff.dashboard') }}" class="staff-sidebar-header">
+                    <div class="staff-brand">GH</div>
+                    <div class="staff-brand-text">Grand Horizon</div>
+                </a>
+
+                <nav class="staff-sidebar-nav">
+                    <a href="{{ route('staff.approvals') }}" class="staff-sidebar-link {{ request()->routeIs('staff.approvals') ? 'active' : '' }}">
+                        <span class="staff-sidebar-icon">🗂️</span>
+                        <span>Approvals</span>
+                    </a>
+
+                    <a href="{{ route('staff.maintenance') }}" class="staff-sidebar-link {{ request()->routeIs('staff.maintenance') ? 'active' : '' }}">
+                        <span class="staff-sidebar-icon">🛠️</span>
+                        <span>Maintenance</span>
+                    </a>
+                </nav>
+            </div>
+
+            <div>
+                <div class="staff-sidebar-footer">
+                    <div class="staff-avatar">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</div>
+                    <div>
+                        <div class="staff-avatar-name">{{ Auth::user()->name }}</div>
+                        <div class="staff-avatar-role">Staff</div>
+                    </div>
+                </div>
+
+                <div>
+                    <form method="POST" action="{{ route('logout') }}" class="staff-sidebar-logout">
+                        @csrf
+                        <button type="submit" class="staff-logout-button">Logout</button>
+                    </form>
+                </div>
+            </div>
+        </aside>
+
+        <main class="staff-main flex-1 p-8">
+            <div class="space-y-6">
+                @if(session('success'))
+                    <div class="rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm px-4 py-2">
+                        {{ session('success') }}
+                    </div>
+                @endif
+
+                @if(session('error'))
+                    <div class="rounded-lg bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-2">
+                        {{ session('error') }}
+                    </div>
+                @endif
+
+                @yield('content')
+            </div>
+        </main>
+    </div>
+</body>
+</html>

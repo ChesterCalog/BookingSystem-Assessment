@@ -18,6 +18,11 @@ class RoomType extends Model
         return $this->hasMany(RoomInventory::class);
     }
 
+    public function roomUnits(): HasMany
+    {
+        return $this->hasMany(RoomUnit::class);
+    }
+
     // Relates RoomType to Bookings (One-to-Many)
     public function bookings(): HasMany
     {

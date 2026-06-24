@@ -29,37 +29,31 @@ class DatabaseSeeder extends Seeder
             ['name' => 'John Doe', 'password' => bcrypt('password'), 'role' => 'customer']
         );
 
-        // 2. GENERATE DEFAULT ROOM TYPE
-        $roomType = RoomType::firstOrCreate(
-            ['name' => 'Deluxe Suite'],
-            ['base_price' => 150.00, 'total_inventory' => 5]
-        );
+        // 2. RUN EXTERNAL ROOM TYPE SEEDER
+        // Instead of hardcoding one room here, we run your custom file with the 3 room types!
+        $this->call([
+            RoomTypeSeeder::class,
+        ]);
 
-        foreach ([101, 102, 103, 104, 105] as $roomNumber) {
-            RoomUnit::firstOrCreate(
-                ['room_number' => (string) $roomNumber],
-                [
-                    'room_type_id' => $roomType->id,
-                    'status' => 'available',
-                ]
-            );
-        }
-
-        // 3. POPULATE CALENDAR INVENTORY FOR THE NEXT 30 DAYS
+        // 3. POPULATE CALENDAR INVENTORY FOR ALL ROOMS FOR THE NEXT 30 DAYS
+        // We fetch ALL the room types your custom seeder just made, and generate inventory calendars for them!
+        $roomTypes = RoomType::all();
         $startDate = Carbon::today();
-        for ($i = 0; $i < 30; $i++) {
-            $dateString = $startDate->copy()->addDays($i)->toDateString();
 
-            RoomInventory::firstOrCreate(
-                [
-                    'room_type_id' => $roomType->id,
-                    'inventory_date' => $dateString
-                ],
-                [
-                    'available_count' => $roomType->total_inventory,
-                    'price_override' => null
-                ]
-            );
+        foreach ($roomTypes as $roomType) {
+            for ($i = 0; $i < 30; $i++) {
+                $dateString = $startDate->copy()->addDays($i)->toDateString();
+
+                RoomInventory::firstOrCreate(
+                    [
+                        'room_type_id' => $roomType->id,
+                        'inventory_date' => $dateString
+                    ],
+                    [
+                        'available_count' => $roomType->total_inventory
+                    ]
+                );
+            }
         }
     }
 }

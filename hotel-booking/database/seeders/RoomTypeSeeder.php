@@ -17,7 +17,7 @@ class RoomTypeSeeder extends Seeder
             ['name' => 'Deluxe Horizon Suite'],
             [
                 'base_price' => 250.00,
-                'total_inventory' => 10,
+                'total_inventory' => 5,
                 'image' => 'deluxe-horizon-suite.jpg',
                 'description' => 'Spacious suite with panoramic city views.',
                 'size' => '200 sq ft',
@@ -30,7 +30,7 @@ class RoomTypeSeeder extends Seeder
             ['name' => 'Superior Standard Room'],
             [
                 'base_price' => 100.00,
-                'total_inventory' => 25,
+                'total_inventory' => 5,
                 'image' => 'superior-standard-room.jpg',
                 'description' => 'Comfortable room with essential amenities.',
                 'size' => '150 sq ft',
@@ -43,7 +43,7 @@ class RoomTypeSeeder extends Seeder
             ['name' => 'Compact Smart Studio'],
             [
                 'base_price' => 50.00,
-                'total_inventory' => 40,
+                'total_inventory' => 5,
                 'image' => 'compact-smart-studio.jpg',
                 'description' => 'Efficient and modern studio room.',
                 'size' => '100 sq ft',

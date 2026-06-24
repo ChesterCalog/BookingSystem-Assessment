@@ -12,6 +12,7 @@ use App\Http\Controllers\Staff\StaffDashboardController;
 use App\Models\RoomType;
 use Illuminate\Support\Facades\Route;
 
+
 /*
 |--------------------------------------------------------------------------
 | Public Guest Zones (Landing Page & Bookings Only)

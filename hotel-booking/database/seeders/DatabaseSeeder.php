@@ -47,19 +47,21 @@ class DatabaseSeeder extends Seeder
 
         // 3. POPULATE CALENDAR INVENTORY FOR THE NEXT 30 DAYS
         $startDate = Carbon::today();
-        for ($i = 0; $i < 30; $i++) {
-            $dateString = $startDate->copy()->addDays($i)->toDateString();
 
-            RoomInventory::firstOrCreate(
-                [
-                    'room_type_id' => $roomType->id,
-                    'inventory_date' => $dateString
-                ],
-                [
-                    'available_count' => $roomType->total_inventory,
-                    'price_override' => null
-                ]
-            );
+        foreach ($roomTypes as $roomType) {
+            for ($i = 0; $i < 30; $i++) {
+                $dateString = $startDate->copy()->addDays($i)->toDateString();
+
+                RoomInventory::firstOrCreate(
+                    [
+                        'room_type_id' => $roomType->id,
+                        'inventory_date' => $dateString
+                    ],
+                    [
+                        'available_count' => $roomType->total_inventory
+                    ]
+                );
+            }
         }
     }
 }

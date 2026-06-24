@@ -45,10 +45,13 @@ Route::post('/staff/login', [AuthenticatedSessionController::class, 'storeStaff'
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'verified'])->group(function () {
-    
-    Route::get('/membership/dashboard', function () {
-        return view('dashboard.member');
-    })->middleware('role:customer')->name('member.dashboard');
+
+    Route::get('/membership/dashboard', [DashboardController::class, 'index'])
+        ->middleware('role:customer')
+        ->name('member.dashboard');
+    Route::post('/membership/dashboard/avatar', [DashboardController::class, 'updateAvatar'])
+        ->middleware('role:customer')
+        ->name('dashboard.avatar');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

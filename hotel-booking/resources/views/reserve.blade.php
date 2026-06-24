@@ -103,10 +103,14 @@
                     @foreach($roomTypes as $room)
                         <div data-room-id="{{ $room->id }}" class="room-card hidden bg-white rounded-3xl overflow-hidden shadow-md border border-stone-200 flex flex-col justify-between transition-all duration-300">
                             <div class="relative overflow-hidden aspect-[16/9] bg-stone-200">
-                                @if($room->image)
-                                    <img src="{{ asset('storage/' . $room->image) }}" alt="{{ $room->name }}" class="w-full h-full object-cover">
+                                @if(str_contains(strtolower($room->name), 'deluxe'))
+                                    <img src="https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=1200&q=80" alt="Deluxe Suite" class="w-full h-full object-cover">
+                                @elseif(str_contains(strtolower($room->name), 'standard'))
+                                    <img src="https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=1200&q=80" alt="Standard Room" class="w-full h-full object-cover">
+                                @elseif(str_contains(strtolower($room->name), 'compact') || str_contains(strtolower($room->name), 'studio'))
+                                    <img src="https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80" alt="Compact Studio" class="w-full h-full object-cover">
                                 @else
-                                    <div class="w-full h-full flex items-center justify-center bg-stone-100 text-stone-400 text-xs">No image available</div>
+                                    <img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1200&q=80" alt="Executive Suite" class="w-full h-full object-cover">
                                 @endif
                                 <div class="absolute bottom-4 right-4 bg-stone-900 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg">
                                     ${{ number_format($room->base_price, 2) }} / Night Allocation
@@ -117,19 +121,21 @@
                                 <div class="space-y-2">
                                     <h3 class="serif text-2xl font-bold text-stone-900">{{ $room->name }}</h3>
                                     
-                                    @if($room->description)
-                                        <p class="text-sm text-stone-500 leading-relaxed font-light">{{ $room->description }}</p>
+                                    @if($room->base_price >= 200)
+                                        <p class="text-sm text-stone-500 leading-relaxed font-light">An engineering masterpiece featuring soundproofed architectural glass, custom native timber trim framing, and dedicated private high-speed cloud connections.</p>
+                                    @elseif($room->base_price >= 100)
+                                        <p class="text-sm text-stone-500 leading-relaxed font-light">Features premium orthopedic sleep setups, work-focused ergonomics, dynamic natural lighting, and deep acoustic structural soundproofing buffers.</p>
+                                    @else
+                                        <p class="text-sm text-stone-500 leading-relaxed font-light">Provides hyper-efficient smart layouts, keyless proximity automation access, secure dynamic personal lockers, and integrated focus zones.</p>
                                     @endif
                                 </div>
 
-                                @if($room->amenities)
-                                    @php $amenities = is_array($room->amenities) ? $room->amenities : json_decode($room->amenities, true); @endphp
-                                    <div class="pt-4 border-t border-stone-100 grid grid-cols-2 gap-4 text-xs font-medium text-stone-500">
-                                        @foreach($amenities ?? [] as $amenity)
-                                            <span class="flex items-center space-x-2"><span>✨</span> <span>{{ $amenity }}</span></span>
-                                        @endforeach
-                                    </div>
-                                @endif
+                                <div class="pt-4 border-t border-stone-100 grid grid-cols-2 gap-4 text-xs font-medium text-stone-500">
+                                    <span class="flex items-center space-x-2"><span>✨</span> <span>{{ $room->base_price <= 50 ? 'Smart Bed' : 'King Bed' }}</span></span>
+                                    <span class="flex items-center space-x-2"><span>🌇</span> <span>{{ $room->base_price <= 100 ? 'City View' : 'Ocean View Balcony' }}</span></span>
+                                    <span class="flex items-center space-x-2"><span>🚿</span> <span>{{ $room->base_price <= 50 ? 'Premium Shared Bath' : 'Private Luxury Spa' }}</span></span>
+                                    <span class="flex items-center space-x-2"><span>📶</span> <span>High-Speed Secure Cloud Connection</span></span>
+                                </div>
                             </div>
                         </div>
                     @endforeach

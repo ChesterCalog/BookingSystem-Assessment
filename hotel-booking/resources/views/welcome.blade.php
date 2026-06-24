@@ -116,10 +116,12 @@
                 @forelse($roomTypes as $room)
                     <div class="bg-white rounded-3xl overflow-hidden shadow-sm border border-stone-200/40 group flex flex-col justify-between transform hover:-translate-y-1 transition duration-300">
                         <div class="relative overflow-hidden aspect-[4/3] bg-stone-200">
-                            @if($room->image)
-                                <img src="{{ asset('storage/' . $room->image) }}" alt="{{ $room->name }}" class="w-full h-full object-cover">
+                            @if(str_contains(strtolower($room->name), 'deluxe'))
+                                <img src="https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=800&q=80" alt="Deluxe Suite" class="w-full h-full object-cover">
+                            @elseif(str_contains(strtolower($room->name), 'standard'))
+                                <img src="https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=800&q=80" alt="Standard Room" class="w-full h-full object-cover">
                             @else
-                                <div class="w-full h-full flex items-center justify-center bg-stone-100 text-stone-400 text-xs">No image available</div>
+                                <img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80" alt="Executive Suite" class="w-full h-full object-cover">
                             @endif
 
                             <div class="absolute top-4 right-4 bg-stone-900 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-md">
@@ -130,9 +132,7 @@
                         <div class="p-8 space-y-6 flex-grow flex flex-col justify-between">
                             <div class="space-y-3">
                                 <h3 class="serif text-2xl font-bold text-stone-900">{{ $room->name }}</h3>
-                                @if($room->description)
-                                    <p class="text-xs text-stone-500 leading-relaxed font-light">{{ $room->description }}</p>
-                                @endif
+                                <p class="text-xs text-stone-500 leading-relaxed font-light">An elegant minimalist layout prioritizing absolute comfort. Optimized spatial ergonomics, premium linen setups, and custom workspace integrations.</p>
                             </div>
 
                             <div class="pt-2">
@@ -143,7 +143,21 @@
                         </div>
                     </div>
                 @empty
-                    <div class="col-span-full text-center text-stone-400 text-sm py-16">No accommodations available at the moment.</div>
+                    <div class="bg-white rounded-3xl overflow-hidden shadow-sm border border-stone-200/40 group flex flex-col justify-between">
+                        <div class="relative overflow-hidden aspect-[4/3]">
+                            <img src="https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=800&q=80" alt="Deluxe Suite" class="w-full h-full object-cover">
+                            <div class="absolute top-4 right-4 bg-stone-900 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-md">$350.00 / Night</div>
+                        </div>
+                        <div class="p-8 space-y-6 flex-grow flex flex-col justify-between">
+                            <div class="space-y-3">
+                                <h3 class="serif text-2xl font-bold text-stone-900">Horizon Deluxe Suite</h3>
+                                <p class="text-xs text-stone-500 leading-relaxed font-light">Panoramic ocean view design featuring soundproof structural architecture and custom materials layout.</p>
+                            </div>
+                            <div class="pt-2">
+                                <a href="{{ route('booking.create') }}" class="w-full text-center bg-stone-900 text-white py-3 rounded-xl text-xs font-bold tracking-widest uppercase hover:bg-amber-800 transition block">Reserve This Space</a>
+                            </div>
+                        </div>
+                    </div>
                 @endforelse
             </div>
         </div>

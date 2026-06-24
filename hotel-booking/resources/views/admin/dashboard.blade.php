@@ -4,7 +4,6 @@
 
 @section('content')
 
-
 <h1 class="text-3xl font-serif text-stone-800 mb-1">Dashboard</h1>
 <div class="flex items-center justify-between mb-1">
     <p class="text-stone-500 mb-6">Grand Palace Hotel — Overview for {{ now()->format('F Y') }}</p>

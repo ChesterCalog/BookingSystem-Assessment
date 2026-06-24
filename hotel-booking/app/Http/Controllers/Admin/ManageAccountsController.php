@@ -10,8 +10,8 @@ use Illuminate\Http\Request;
 
 class ManageAccountsController extends Controller
 {
-    // Roles considered "staff" — adjust to match the exact role strings you store
-    protected array $staffRoles = ['admin', 'manager', 'front_desk', 'housekeeping', 'maintenance'];
+    // Roles considered "staff" or admin accounts for the staff section.
+    protected array $staffRoles = ['admin', 'manager', 'front_desk', 'housekeeping', 'maintenance', 'staff'];
 
     public function index(Request $request)
     {
@@ -29,7 +29,7 @@ class ManageAccountsController extends Controller
             ->map(function ($user) {
                 $lastBooking = $user->bookings->first();
                 $user->last_booking_date = $lastBooking?->check_in;
-                $user->membership_tier = $user->bookings_count > 0 ? 'Member' : 'Guest';
+                $user->membership_tier = $user->bookings_count > 0 ? 'member' : 'guest';
                 return $user;
             });
 

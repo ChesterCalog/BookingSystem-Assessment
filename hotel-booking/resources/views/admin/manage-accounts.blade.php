@@ -3,13 +3,12 @@
 @section('title', 'Manage Accounts')
 
 @section('content')
-<div class="flex items-center justify-between mb-1">
-    <p class="text-xs text-stone-500">Manage Accounts</p>
-    <p class="text-xs text-stone-500">{{ now()->format('D, M j, Y') }}</p>
-</div>
 
 <h1 class="text-3xl font-serif text-stone-800 mb-1">Manage Accounts</h1>
+<div class="flex items-center justify-between mb-1">
 <p class="text-stone-500 mb-6">Staff accounts and customer profiles</p>
+<p class="text-xs text-stone-500">{{ now()->format('D, M j, Y') }}</p>
+</div>
 
 @if(session('success'))
     <div class="mb-4 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm px-4 py-2">
@@ -49,17 +48,11 @@
                         </td>
                         <td class="py-3 pr-4 text-stone-600">{{ $staff->email }}</td>
                         <td class="py-3 pr-4">
-                            <span class="px-2 py-0.5 rounded-md text-xs border
-                                @if($staff->role === 'admin') bg-purple-50 text-purple-700 border-purple-200
-                                @elseif($staff->role === 'manager') bg-blue-50 text-blue-700 border-blue-200
-                                @elseif($staff->role === 'front_desk') bg-amber-50 text-amber-700 border-amber-200
-                                @elseif($staff->role === 'housekeeping') bg-teal-50 text-teal-700 border-teal-200
-                                @else bg-stone-100 text-stone-600 border-stone-200
-                                @endif">
-                                {{ \Illuminate\Support\Str::headline($staff->role) }}
-                            </span>
                             @if($staff->role === 'admin')
+                                <span class="px-2 py-0.5 rounded-md text-xs border bg-purple-50 text-purple-700 border-purple-200">Admin</span>
                                 <div class="text-xs text-stone-400 mt-0.5">Protected</div>
+                            @else
+                                <span class="px-2 py-0.5 rounded-md text-xs border bg-slate-100 text-slate-700 border-slate-200">Staff</span>
                             @endif
                         </td>
                         <td class="py-3 pr-4">
@@ -88,11 +81,8 @@
                                     @csrf
                                     @method('PATCH')
                                     <select name="role" class="border border-stone-300 rounded-md text-sm px-2 py-1">
-                                        @foreach(['manager', 'front_desk', 'housekeeping', 'maintenance'] as $r)
-                                            <option value="{{ $r }}" {{ $staff->role === $r ? 'selected' : '' }}>
-                                                {{ \Illuminate\Support\Str::headline($r) }}
-                                            </option>
-                                        @endforeach
+                                        <option value="staff" selected>Staff</option>
+                                        <option value="admin">Admin</option>
                                     </select>
                                     <button type="submit" class="text-sm bg-stone-800 text-white rounded-md px-3 py-1 hover:bg-stone-700">
                                         Save
@@ -111,10 +101,6 @@
 <div class="bg-white rounded-xl border border-stone-200 p-5">
     <div class="flex items-center justify-between mb-4">
         <h2 class="text-lg font-semibold text-stone-800">Customer Accounts</h2>
-        <div class="flex items-center gap-4 text-xs text-stone-500">
-            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Member — {{ $memberCount }}</span>
-            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-stone-300"></span> Guest — {{ $guestCount }}</span>
-        </div>
     </div>
 
     <div class="overflow-x-auto">
@@ -124,7 +110,6 @@
                     <th class="py-2 pr-4">Name</th>
                     <th class="py-2 pr-4">Email</th>
                     <th class="py-2 pr-4">Phone</th>
-                    <th class="py-2 pr-4">Membership</th>
                     <th class="py-2 pr-4">Bookings</th>
                     <th class="py-2 pr-4">Joined</th>
                     <th class="py-2 pr-4">Last Booking</th>
@@ -136,12 +121,6 @@
                         <td class="py-3 pr-4 font-medium text-stone-800">{{ $customer->name }}</td>
                         <td class="py-3 pr-4 text-stone-600">{{ $customer->email }}</td>
                         <td class="py-3 pr-4 text-stone-600">{{ $customer->phone ?? '—' }}</td>
-                        <td class="py-3 pr-4">
-                            <span class="px-2 py-0.5 rounded-md text-xs border
-                                {{ $customer->membership_tier === 'Member' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-stone-100 text-stone-600 border-stone-200' }}">
-                                {{ $customer->membership_tier }}
-                            </span>
-                        </td>
                         <td class="py-3 pr-4 text-stone-600">{{ $customer->bookings_count }}</td>
                         <td class="py-3 pr-4 text-stone-600">{{ optional($customer->created_at)->format('Y-m-d') }}</td>
                         <td class="py-3 pr-4 text-stone-600">

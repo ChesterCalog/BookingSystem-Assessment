@@ -3,13 +3,12 @@
 @section('title', 'Transaction Reports')
 
 @section('content')
-<div class="flex items-center justify-between mb-1">
-    <p class="text-xs text-stone-500">Transaction Reports</p>
-    <p class="text-xs text-stone-500">{{ now()->format('D, M j, Y') }}</p>
-</div>
 
 <h1 class="text-3xl font-serif text-stone-800 mb-1">Transaction Reports</h1>
+<div class="flex items-center justify-between mb-1">
 <p class="text-stone-500 mb-6">Daily booking transactions and revenue — last 10 days</p>
+<p class="text-xs text-stone-500">{{ now()->format('D, M j, Y') }}</p>
+</div>
 
 {{-- Stat cards --}}
 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">

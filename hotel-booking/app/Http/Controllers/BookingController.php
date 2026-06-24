@@ -21,23 +21,23 @@ class BookingController extends Controller
     // 2. DEDICATED RESERVATION PAGE (Sorted Descending)
     public function showReservationForm()
     {
-        $roomTypes = RoomType::orderBy('base_price', 'desc')->get();
-        return view('reserve', compact('roomTypes'));
+        $rooms = RoomType::orderBy('base_price', 'desc')->get();
+        return view('booking.create', compact('rooms'));
     }
 
     // 3. BACKGROUND PROCESSING ENGINE
     public function store(Request $request)
     {
-        $guestName = $request->input('guest_name');
+        $guestName  = $request->input('guest_name');
         $guestEmail = $request->input('guest_email');
         $guestPhone = $request->input('guest_phone');
-        
+
         $roomTypeId = $request->input('room_type_id');
-        $checkIn = Carbon::parse($request->input('check_in'));
-        $checkOut = Carbon::parse($request->input('check_out'));
+        $checkIn    = Carbon::parse($request->input('check_in'));
+        $checkOut   = Carbon::parse($request->input('check_out'));
 
         return DB::transaction(function () use ($guestName, $guestEmail, $guestPhone, $roomTypeId, $checkIn, $checkOut) {
-            
+
             $days = DB::table('room_inventories')
                 ->where('room_type_id', $roomTypeId)
                 ->where('inventory_date', '>=', $checkIn->toDateString())
@@ -57,7 +57,7 @@ class BookingController extends Controller
                 ->where('inventory_date', '<', $checkOut->toDateString())
                 ->decrement('available_count');
 
-            $roomType = RoomType::find($roomTypeId);
+            $roomType   = RoomType::find($roomTypeId);
             $totalPrice = $days->sum(function ($day) use ($roomType) {
                 return $day->price_override ?? $roomType->base_price;
             });
@@ -65,25 +65,47 @@ class BookingController extends Controller
             $user = User::firstOrCreate(
                 ['email' => $guestEmail],
                 [
-                    'name' => $guestName,
-                    'phone' => $guestPhone,
-                    // FIXED: Using the modern namespaced Str class helper
+                    'name'     => $guestName,
+                    'phone'    => $guestPhone,
                     'password' => bcrypt(\Illuminate\Support\Str::random(16)),
-                    'role' => 'customer'
+                    'role'     => 'customer'
                 ]
             );
 
             Booking::create([
-                'user_id' => $user->id,
+                'user_id'      => $user->id,
                 'room_type_id' => $roomTypeId,
-                'check_in' => $checkIn->toDateString(),
-                'check_out' => $checkOut->toDateString(),
-                'total_price' => $totalPrice,
-                'status' => 'confirmed'
+                'check_in'     => $checkIn->toDateString(),
+                'check_out'    => $checkOut->toDateString(),
+                'total_price'  => $totalPrice,
+                'status'       => 'pending', // Awaits admin approval
             ]);
 
-            // Redirects back to home page with success notification
-            return redirect()->route('home')->with('success', 'Your elite sanctuary reservation has been confirmed successfully!');
+            return redirect()->route('home')->with('success', 'Your reservation request has been submitted and is awaiting confirmation!');
         });
+    }
+
+    // 4. ADMIN: APPROVE A BOOKING
+    public function approve(Booking $booking)
+    {
+        $booking->update(['status' => 'confirmed']);
+
+        return redirect()->back()->with('success', "Booking #{$booking->id} has been approved.");
+    }
+
+    // 5. ADMIN: REJECT A BOOKING (also restores inventory)
+    public function reject(Booking $booking)
+    {
+        DB::table('room_inventories')
+            ->where('room_type_id', $booking->room_type_id)
+            ->whereBetween('inventory_date', [
+                $booking->check_in,
+                Carbon::parse($booking->check_out)->subDay()->toDateString()
+            ])
+            ->increment('available_count');
+
+        $booking->update(['status' => 'rejected']);
+
+        return redirect()->back()->with('success', "Booking #{$booking->id} has been rejected and inventory restored.");
     }
 }

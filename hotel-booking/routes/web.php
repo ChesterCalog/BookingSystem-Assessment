@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| Public Guest Zones
+| Public Guest Zones (Landing Page & Bookings Only)
 |--------------------------------------------------------------------------
 */
 
@@ -28,10 +28,9 @@ Route::post('/booking/reserve', [BookingController::class, 'store'])->name('book
 
 /*
 |--------------------------------------------------------------------------
-| Dedicated Staff Login
+| Dedicated Staff Login Route
 |--------------------------------------------------------------------------
 */
-
 Route::get('/staff/login', function () {
     return view('auth.staff-login');
 })->middleware('guest')->name('staff.login');
@@ -40,34 +39,26 @@ Route::post('/staff/login', [AuthenticatedSessionController::class, 'storeStaff'
     ->middleware('guest')
     ->name('staff.login.store');
 
-
 /*
 |--------------------------------------------------------------------------
 | Protected Customer Workspace
 |--------------------------------------------------------------------------
 */
-
 Route::middleware(['auth', 'verified'])->group(function () {
+    
+    Route::get('/membership/dashboard', function () {
+        return view('dashboard.member');
+    })->middleware('role:customer')->name('member.dashboard');
 
-    // Member dashboard (booking tickets + avatar picker)
-    Route::get('/membership/dashboard', [DashboardController::class, 'index'])
-        ->middleware('role:customer')
-        ->name('member.dashboard');
-
-    Route::post('/membership/dashboard/avatar', [DashboardController::class, 'updateAvatar'])
-        ->middleware('role:customer')
-        ->name('dashboard.avatar');
-
-    // Profile Settings
+    // Profile Settings (Breeze)
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
 });
 
 /*
 |--------------------------------------------------------------------------
-| Restricted Staff / Admin Portal
+| Restricted Staff Management Portal
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'role:staff'])->group(function () {
@@ -107,5 +98,6 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     });
 
 });
+
 
 require __DIR__.'/auth.php';

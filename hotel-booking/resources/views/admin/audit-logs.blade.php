@@ -3,14 +3,10 @@
 @section('title', 'Audit Logs')
 
 @section('content')
-<div class="flex items-center justify-between mb-1">
-    <p class="text-xs text-stone-500">Audit Logs</p>
-    <p class="text-xs text-stone-500">{{ now()->format('D, M j, Y') }}</p>
-</div>
 
 <h1 class="text-3xl font-serif text-stone-800 mb-1">Audit Logs</h1>
-<p class="text-stone-500 mb-6">System changes by staff and customer booking activity</p>
-
+<div class="flex items-center justify-between mb-1"><p class="text-stone-500 mb-6">System changes by staff and customer booking activity</p>
+<p class="text-xs text-stone-500">{{ now()->format('D, M j, Y') }}</p></div>
 <div class="bg-white rounded-xl border border-stone-200 p-5">
 
     <div class="flex items-center justify-between mb-4">

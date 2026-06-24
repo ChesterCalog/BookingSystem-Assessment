@@ -3,13 +3,13 @@
 @section('title', 'Dashboard')
 
 @section('content')
-<div class="flex items-center justify-between mb-1">
-    <p class="text-xs text-stone-500">Dashboard</p>
-    <p class="text-xs text-stone-500">{{ now()->format('D, M j, Y') }}</p>
-</div>
+
 
 <h1 class="text-3xl font-serif text-stone-800 mb-1">Dashboard</h1>
-<p class="text-stone-500 mb-6">Grand Palace Hotel — Overview for {{ now()->format('F Y') }}</p>
+<div class="flex items-center justify-between mb-1">
+    <p class="text-stone-500 mb-6">Grand Palace Hotel — Overview for {{ now()->format('F Y') }}</p>
+    <p class="text-xs text-stone-500">{{ now()->format('D, M j, Y') }}</p>
+</div>
 
 {{-- Stat cards --}}
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">

@@ -102,12 +102,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
 | Restricted Staff / Admin Portal
 |--------------------------------------------------------------------------
 */
+Route::middleware(['auth', 'role:staff'])->group(function () {
 
-Route::middleware(['auth', 'role:staff,admin'])->group(function () {
+    Route::get('/staff/portal', function () {
+        return redirect()->route('staff.dashboard');
+    })->name('staff.portal');
+
+    Route::prefix('staff')->name('staff.')->group(function () {
+    });
+
+});
+Route::middleware(['auth', 'role:admin'])->group(function () {
 
     Route::get('/management/portal', function () {
         return redirect()->route('admin.dashboard');
-    })->name('staff.portal');
+    })->name('admin.portal');
 
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');

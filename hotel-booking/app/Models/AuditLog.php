@@ -12,11 +12,6 @@ class AuditLog extends Model
     {
         return $this->belongsTo(User::class);
     }
-
-    /**
-     * Convenience helper to log an event from anywhere in the app, e.g.:
-     * AuditLog::log($request->user(), 'staff', 'Booking Approved', 'BK-2401', 'Booking approved for Elena Fischer — Suite 301');
-     */
     public static function log(?User $actor, string $actorType, string $action, ?string $target = null, ?string $details = null): self
     {
         return self::create([

@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\ManageAccountsController;
 use App\Http\Controllers\Admin\TransactionReportController;
+use App\Http\Controllers\Staff\StaffDashboardController;
 use App\Models\RoomType;
 use Illuminate\Support\Facades\Route;
 
@@ -66,10 +67,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::middleware(['auth', 'role:staff'])->group(function () {
 
     Route::get('/staff/portal', function () {
-        return redirect()->route('staff.dashboard');
+        return redirect()->route('staff.approvals');
     })->name('staff.portal');
 
     Route::prefix('staff')->name('staff.')->group(function () {
+        Route::get('/dashboard', function () {
+            return redirect()->route('staff.approvals');
+        })->name('dashboard');
+        Route::get('/approvals', [StaffDashboardController::class, 'approvals'])->name('approvals');
+        Route::get('/maintenance', [StaffDashboardController::class, 'maintenance'])->name('maintenance');
+        Route::post('/bookings/{booking}/approve', [StaffDashboardController::class, 'approveBooking'])->name('bookings.approve');
+        Route::post('/bookings/{booking}/reject', [StaffDashboardController::class, 'rejectBooking'])->name('bookings.reject');
     });
 
 });
@@ -86,6 +94,10 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
         Route::patch('/manage-accounts/{user}/status', [ManageAccountsController::class, 'toggleStatus'])->name('accounts.toggle-status');
         Route::get('/audit-logs', [AuditLogController::class, 'index'])->name('audit-logs');
         Route::get('/transaction-reports', [TransactionReportController::class, 'index'])->name('transaction-reports');
+        Route::get('/approvals', [StaffDashboardController::class, 'approvals'])->name('approvals');
+        Route::get('/maintenance', [StaffDashboardController::class, 'maintenance'])->name('maintenance');
+        Route::post('/bookings/{booking}/approve', [StaffDashboardController::class, 'approveBooking'])->name('bookings.approve');
+        Route::post('/bookings/{booking}/reject', [StaffDashboardController::class, 'rejectBooking'])->name('bookings.reject');
     });
 
 });

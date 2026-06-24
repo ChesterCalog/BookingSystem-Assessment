@@ -172,7 +172,7 @@
                         <span>Dashboard</span>
                     </a>
 
-                    <a href="#" class="admin-sidebar-link placeholder">
+                    <a href="{{ route('staff.approvals') }}" class="admin-sidebar-link {{ request()->routeIs('staff.approvals') ? 'active' : '' }}">
                         <span class="admin-sidebar-icon">🗂️</span>
                         <span>Approvals</span>
                     </a>
@@ -182,7 +182,7 @@
                         <span>Manage Accounts</span>
                     </a>
 
-                    <a href="#" class="admin-sidebar-link placeholder">
+                    <a href="{{ route('staff.maintenance') }}" class="admin-sidebar-link {{ request()->routeIs('staff.maintenance') ? 'active' : '' }}">
                         <span class="admin-sidebar-icon">🛠️</span>
                         <span>Maintenance</span>
                     </a>

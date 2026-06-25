@@ -1,5 +1,8 @@
-@extends('layouts.staff')
-@extends('layouts.admin')
+@php
+    $layout = Auth::user()->isAdmin() ? 'layouts.admin' : 'layouts.staff';
+@endphp
+
+@extends($layout)
 
 @section('title', 'Maintenance')
 

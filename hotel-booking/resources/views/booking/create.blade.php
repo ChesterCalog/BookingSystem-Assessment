@@ -28,29 +28,74 @@
         {{-- LEFT: Booking Form --}}
         <div class="lg:col-span-7 bg-white p-8 md:p-12 rounded-3xl shadow-sm border border-stone-200/60">
             <h1 class="serif text-3xl font-bold text-stone-900 mb-2">Secure Your Reservation</h1>
-            <p class="text-sm text-stone-500 font-light mb-8">Please select your preferred dates and accommodation tier.</p>
+            <p class="text-sm text-stone-500 font-light mb-4">Please select your preferred dates and accommodation tier.</p>
+
+            <div class="flex items-center gap-3 mb-8 rounded-2xl border border-amber-100 bg-amber-50/70 px-4 py-3">
+                @auth
+                    <div class="w-10 h-10 rounded-full border-2 border-amber-700 overflow-hidden flex items-center justify-center bg-white shrink-0">
+                        @include('partials.avatar', ['avatar' => auth()->user()->avatar ?? 'male_1', 'size' => 40])
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-bold tracking-widest uppercase text-amber-800">Booking as</p>
+                        <p class="text-sm font-bold text-stone-900">{{ auth()->user()->name }}</p>
+                    </div>
+                @else
+                    <div class="w-10 h-10 rounded-full border-2 border-stone-300 bg-white flex items-center justify-center text-stone-500 font-bold text-sm shrink-0">
+                        G
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-bold tracking-widest uppercase text-stone-500">Booking as</p>
+                        <p class="text-sm font-bold text-stone-900">Guest</p>
+                    </div>
+                @endauth
+            </div>
+
+            @if ($errors->any())
+                <div class="mb-8 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
+                    <p class="font-bold">Please check your reservation details.</p>
+                    <ul class="mt-2 list-disc space-y-1 pl-5">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div class="mb-8 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-800">
+                    {{ session('error') }}
+                </div>
+            @endif
 
             <form action="{{ route('booking.store') }}" method="POST" class="space-y-6">
                 @csrf
 
                 {{-- Guest Information --}}
                 <div class="pb-6 border-b border-stone-100">
-                    <h3 class="text-xs font-bold tracking-widest uppercase text-stone-800 mb-4">Guest Information</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                        <div>
-                            <label class="block text-xs font-bold tracking-widest uppercase text-stone-600 mb-2">Full Name</label>
-                            <input type="text" name="guest_name" required
-                                class="block w-full rounded-xl border-0 py-3 text-stone-900 shadow-sm ring-1 ring-inset ring-stone-300 focus:ring-2 focus:ring-inset focus:ring-amber-800 sm:text-sm px-4">
+                    <h3 class="text-xs font-bold tracking-widest uppercase text-stone-800 mb-4">
+                        @auth
+                            Contact Information
+                        @else
+                            Guest Information
+                        @endauth
+                    </h3>
+                    @guest
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label class="block text-xs font-bold tracking-widest uppercase text-stone-600 mb-2">Full Name</label>
+                                <input type="text" name="guest_name" value="{{ old('guest_name') }}" required
+                                    class="block w-full rounded-xl border-0 py-3 text-stone-900 shadow-sm ring-1 ring-inset ring-stone-300 focus:ring-2 focus:ring-inset focus:ring-amber-800 sm:text-sm px-4">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold tracking-widest uppercase text-stone-600 mb-2">Email Address</label>
+                                <input type="email" name="guest_email" value="{{ old('guest_email') }}" required
+                                    class="block w-full rounded-xl border-0 py-3 text-stone-900 shadow-sm ring-1 ring-inset ring-stone-300 focus:ring-2 focus:ring-inset focus:ring-amber-800 sm:text-sm px-4">
+                            </div>
                         </div>
-                        <div>
-                            <label class="block text-xs font-bold tracking-widest uppercase text-stone-600 mb-2">Email Address</label>
-                            <input type="email" name="guest_email" required
-                                class="block w-full rounded-xl border-0 py-3 text-stone-900 shadow-sm ring-1 ring-inset ring-stone-300 focus:ring-2 focus:ring-inset focus:ring-amber-800 sm:text-sm px-4">
-                        </div>
-                    </div>
+                    @endguest
                     <div>
                         <label class="block text-xs font-bold tracking-widest uppercase text-stone-600 mb-2">Contact Phone</label>
-                        <input type="text" name="guest_phone" required placeholder="+63 912 345 6789"
+                        <input type="text" name="guest_phone" value="{{ old('guest_phone', auth()->user()->phone ?? '') }}" required placeholder="+63 912 345 6789"
                             class="block w-full rounded-xl border-0 py-3 text-stone-900 shadow-sm ring-1 ring-inset ring-stone-300 focus:ring-2 focus:ring-inset focus:ring-amber-800 sm:text-sm px-4">
                     </div>
                 </div>
@@ -59,13 +104,19 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-bold tracking-widest uppercase text-stone-600 mb-2">Check-In Date</label>
-                        <input type="date" name="check_in" required
-                            class="block w-full rounded-xl border-0 py-3 text-stone-900 shadow-sm ring-1 ring-inset ring-stone-300 focus:ring-2 focus:ring-inset focus:ring-amber-800 sm:text-sm px-4">
+                        <input type="date" id="check_in" name="check_in" value="{{ old('check_in') }}" min="{{ now()->toDateString() }}" required
+                            class="block w-full rounded-xl border-0 py-3 text-stone-900 shadow-sm ring-1 ring-inset {{ $errors->has('check_in') ? 'ring-rose-400 focus:ring-rose-500' : 'ring-stone-300 focus:ring-amber-800' }} focus:ring-2 focus:ring-inset sm:text-sm px-4">
+                        @error('check_in')
+                            <p class="mt-2 text-xs font-medium text-rose-700">{{ $message }}</p>
+                        @enderror
                     </div>
                     <div>
                         <label class="block text-xs font-bold tracking-widest uppercase text-stone-600 mb-2">Check-Out Date</label>
-                        <input type="date" name="check_out" required
-                            class="block w-full rounded-xl border-0 py-3 text-stone-900 shadow-sm ring-1 ring-inset ring-stone-300 focus:ring-2 focus:ring-inset focus:ring-amber-800 sm:text-sm px-4">
+                        <input type="date" id="check_out" name="check_out" value="{{ old('check_out') }}" min="{{ now()->addDay()->toDateString() }}" required
+                            class="block w-full rounded-xl border-0 py-3 text-stone-900 shadow-sm ring-1 ring-inset {{ $errors->has('check_out') ? 'ring-rose-400 focus:ring-rose-500' : 'ring-stone-300 focus:ring-amber-800' }} focus:ring-2 focus:ring-inset sm:text-sm px-4">
+                        @error('check_out')
+                            <p class="mt-2 text-xs font-medium text-rose-700">{{ $message }}</p>
+                        @enderror
                     </div>
                 </div>
 
@@ -129,6 +180,27 @@
             const pSize           = document.getElementById('preview_size');
             const pDesc           = document.getElementById('preview_desc');
             const pAmenities      = document.getElementById('preview_amenities');
+            const checkInInput    = document.getElementById('check_in');
+            const checkOutInput   = document.getElementById('check_out');
+
+            function updateCheckOutMinimum() {
+                if (!checkInInput.value) {
+                    return;
+                }
+
+                const nextDay = new Date(checkInInput.value + 'T00:00:00');
+                nextDay.setDate(nextDay.getDate() + 1);
+
+                const minimumCheckOut = nextDay.toISOString().split('T')[0];
+                checkOutInput.min = minimumCheckOut;
+
+                if (checkOutInput.value && checkOutInput.value < minimumCheckOut) {
+                    checkOutInput.value = '';
+                }
+            }
+
+            checkInInput.addEventListener('change', updateCheckOutMinimum);
+            updateCheckOutMinimum();
 
             selectElement.addEventListener('change', function() {
                 const selectedId = parseInt(this.value);

@@ -29,15 +29,31 @@ class DatabaseSeeder extends Seeder
             ['name' => 'John Doe', 'password' => bcrypt('password'), 'role' => 'customer']
         );
 
-        // 2. RUN EXTERNAL ROOM TYPE SEEDER
-        // Instead of hardcoding one room here, we run your custom file with the 3 room types!
+        // 2. CALL YOUR CUSTOM ROOM TYPE SEEDER
+        // This executes your RoomTypeSeeder.php file!
         $this->call([
             RoomTypeSeeder::class,
         ]);
 
-        // 3. POPULATE CALENDAR INVENTORY FOR ALL ROOMS FOR THE NEXT 30 DAYS
-        // We fetch ALL the room types your custom seeder just made, and generate inventory calendars for them!
+        // Fetch ALL the room types we just seeded to use in our loops below
         $roomTypes = RoomType::all();
+
+        // Dynamically generate Room Units for each Room Type
+        $roomNumberCounter = 101;
+        foreach ($roomTypes as $type) {
+            // Creates units up to the total_inventory limit of each room type
+            for ($i = 0; $i < $type->total_inventory; $i++) {
+                RoomUnit::firstOrCreate(
+                    ['room_number' => (string) $roomNumberCounter++],
+                    [
+                        'room_type_id' => $type->id,
+                        'status' => 'available',
+                    ]
+                );
+            }
+        }
+
+        // 3. POPULATE CALENDAR INVENTORY FOR THE NEXT 30 DAYS
         $startDate = Carbon::today();
 
         foreach ($roomTypes as $roomType) {

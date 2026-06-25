@@ -64,7 +64,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 | Restricted Staff Management Portal
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'role:staff'])->group(function () {
+Route::middleware(['auth', 'role:staff,admin'])->group(function () {
 
     Route::get('/staff/portal', function () {
         return redirect()->route('staff.approvals');
@@ -94,10 +94,6 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
         Route::patch('/manage-accounts/{user}/status', [ManageAccountsController::class, 'toggleStatus'])->name('accounts.toggle-status');
         Route::get('/audit-logs', [AuditLogController::class, 'index'])->name('audit-logs');
         Route::get('/transaction-reports', [TransactionReportController::class, 'index'])->name('transaction-reports');
-        Route::get('/approvals', [StaffDashboardController::class, 'approvals'])->name('approvals');
-        Route::get('/maintenance', [StaffDashboardController::class, 'maintenance'])->name('maintenance');
-        Route::post('/bookings/{booking}/approve', [StaffDashboardController::class, 'approveBooking'])->name('bookings.approve');
-        Route::post('/bookings/{booking}/reject', [StaffDashboardController::class, 'rejectBooking'])->name('bookings.reject');
     });
 
 });

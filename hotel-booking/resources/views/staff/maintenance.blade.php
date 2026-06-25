@@ -1,4 +1,5 @@
 @extends('layouts.staff')
+@extends('layouts.admin')
 
 @section('title', 'Maintenance')
 

@@ -28,15 +28,27 @@ class BookingController extends Controller
     // 3. BACKGROUND PROCESSING ENGINE
     public function store(Request $request)
     {
-        $guestName  = $request->input('guest_name');
-        $guestEmail = $request->input('guest_email');
-        $guestPhone = $request->input('guest_phone');
+        $validated = $request->validate([
+            'guest_name' => [$request->user() ? 'nullable' : 'required', 'string', 'max:255'],
+            'guest_email' => [$request->user() ? 'nullable' : 'required', 'email', 'max:255'],
+            'guest_phone' => ['required', 'string', 'max:50'],
+            'room_type_id' => ['required', 'exists:room_types,id'],
+            'check_in' => ['required', 'date', 'after_or_equal:today'],
+            'check_out' => ['required', 'date', 'after:check_in'],
+        ], [
+            'check_in.after_or_equal' => 'Reservation check-in must be today or a future date.',
+            'check_out.after' => 'Check-out date must be after the check-in date.',
+        ]);
 
-        $roomTypeId = $request->input('room_type_id');
-        $checkIn    = Carbon::parse($request->input('check_in'));
-        $checkOut   = Carbon::parse($request->input('check_out'));
+        $guestName  = $validated['guest_name'] ?? null;
+        $guestEmail = $validated['guest_email'] ?? null;
+        $guestPhone = $validated['guest_phone'];
 
-        return DB::transaction(function () use ($guestName, $guestEmail, $guestPhone, $roomTypeId, $checkIn, $checkOut) {
+        $roomTypeId = $validated['room_type_id'];
+        $checkIn    = Carbon::parse($validated['check_in']);
+        $checkOut   = Carbon::parse($validated['check_out']);
+
+        return DB::transaction(function () use ($request, $guestName, $guestEmail, $guestPhone, $roomTypeId, $checkIn, $checkOut) {
 
             $days = DB::table('room_inventories')
                 ->where('room_type_id', $roomTypeId)
@@ -62,15 +74,24 @@ class BookingController extends Controller
                 return $day->price_override ?? $roomType->base_price;
             });
 
-            $user = User::firstOrCreate(
-                ['email' => $guestEmail],
-                [
-                    'name'     => $guestName,
-                    'phone'    => $guestPhone,
-                    'password' => bcrypt(\Illuminate\Support\Str::random(16)),
-                    'role'     => 'customer'
-                ]
-            );
+            if ($request->user()) {
+                $user = $request->user();
+                $user->forceFill(['phone' => $guestPhone])->save();
+            } else {
+                $user = User::firstOrCreate(
+                    ['email' => $guestEmail],
+                    [
+                        'name'     => $guestName,
+                        'phone'    => $guestPhone,
+                        'password' => bcrypt(\Illuminate\Support\Str::random(16)),
+                        'role'     => 'customer'
+                    ]
+                );
+
+                if ($user->phone !== $guestPhone) {
+                    $user->forceFill(['phone' => $guestPhone])->save();
+                }
+            }
 
             Booking::create([
                 'user_id'      => $user->id,
